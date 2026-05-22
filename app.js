@@ -24,51 +24,60 @@ uploadBtn.addEventListener('click', () => {
     const file = photoInput.files[0];
     const caption = captionInput.value.trim();
 
-    if (!file) return alert("Please select a photo first!");
+    if (!file) return alert("Please select a beautiful photo first!");
 
+    // Lock button so you can't double-click by accident
     uploadBtn.innerText = "Uploading Photo...";
     uploadBtn.disabled = true;
 
-    const formData = new FormData();
-    formData.append('key', FREEIMAGE_HOST_API_KEY);
-    formData.append('action', 'upload');
-    formData.append('source', file);
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    
+    reader.onload = function () {
+        const base64String = reader.result.split(',')[1]; 
 
-    fetch('https://freeimage.host/api/1/upload', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) throw new Error("Network response wasn't stable.");
-        return response.json();
-    })
-    .then(result => {
-        if (result.status_code === 200) {
-            const uploadedUrl = result.image.url;
+        const formData = new FormData();
+        formData.append('key', FREEIMAGE_HOST_API_KEY);
+        formData.append('action', 'upload');
+        formData.append('source', base64String); 
 
-            return db.collection('photos').add({
-                url: uploadedUrl,
-                caption: caption || "A beautiful memory",
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        } else {
-            throw new Error(result.error.message || 'Image host rejected the image.');
-        }
-    })
-    .then(() => {
-        photoInput.value = '';
-        captionInput.value = '';
-        uploadBtn.innerText = "Upload to Album";
-        uploadBtn.disabled = false;
-        alert("Memory added!");
-    })
-    .catch(error => {
-        console.error("Upload Error Details:", error);
-        alert("Upload failed! Check the developer console for full details.");
-        uploadBtn.innerText = "Upload to Album";
-        uploadBtn.disabled = false;
-    });
+        fetch('https://freeimage.host/api/1/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Cloud host response felt shaky.");
+            return response.json();
+        })
+        .then(result => {
+            if (result.status_code === 200) {
+                const uploadedUrl = result.image.url;
+
+                return db.collection('photos').add({
+                    url: uploadedUrl,
+                    caption: caption || "A beautiful memory",
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            } else {
+                throw new Error(result.error.message || 'Image host rejected the upload.');
+            }
+        })
+        .then(() => {
+            photoInput.value = '';
+            captionInput.value = '';
+            uploadBtn.innerText = "Upload to Album";
+            uploadBtn.disabled = false;
+            alert("Memory added!");
+        })
+        .catch(error => {
+            console.error("Error Details:", error);
+            alert("Upload failed! Make sure your database rules are set to true.");
+            uploadBtn.innerText = "Upload to Album";
+            uploadBtn.disabled = false;
+        });
+    };
 });
+
 
 db.collection('photos').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
     albumGrid.innerHTML = '';
@@ -90,5 +99,5 @@ db.collection('photos').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
         albumGrid.appendChild(card);
     });
 }, (error) => {
-    console.error("Firestore database connection failed:", error);
+    console.error("Database tracking broken:", error);
 });
