@@ -1,6 +1,3 @@
-// ==========================================
-// 1. YOUR CRITICAL API KEYS & DETAILS
-// ==========================================
 const firebaseConfig = {
     apiKey: "AIzaSyD73Kg3wKe1ImJ5QWJCON20jhz72QAkMVo",
     authDomain: "our-memory-lane-fd8c2.firebaseapp.com",
