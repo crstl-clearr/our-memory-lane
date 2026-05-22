@@ -1,3 +1,4 @@
+
 const firebaseConfig = {
     apiKey: "AIzaSyD73Kg3wKe1ImJ5QWJCON20jhz72QAkMVo",
     authDomain: "our-memory-lane-fd8c2.firebaseapp.com",
@@ -21,58 +22,81 @@ const albumGrid = document.getElementById('album-grid');
 
 
 uploadBtn.addEventListener('click', () => {
-    const file = photoInput.files[0];
+    const files = photoInput.files;
     const caption = captionInput.value.trim();
 
-    if (!file) return alert("Please select a photo first!");
+    if (files.length === 0) return alert("Please select at least one photo first!");
 
-    uploadBtn.innerText = "Uploading Photo...";
+    uploadBtn.innerText = `Uploading 0/${files.length} Photos...`;
     uploadBtn.disabled = true;
 
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    
-    reader.onload = function () {
-        const base64String = reader.result.split(',')[1]; 
+    let completedUploads = 0;
+    let failedUploads = 0;
 
-        const formData = new FormData();
-        formData.append('image', base64String); 
+    const uploadSingleFile = (file) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        
+        reader.onload = function () {
+            const base64String = reader.result.split(',')[1]; 
 
-        fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            if (!response.ok) throw new Error("ImgBB host response felt shaky.");
-            return response.json();
-        })
-        .then(result => {
-            if (result.success && result.status === 200) {
-                const uploadedUrl = result.data.url; 
+            const formData = new FormData();
+            formData.append('image', base64String); 
 
-                return db.collection('photos').add({
-                    url: uploadedUrl,
-                    caption: caption || "",
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            } else {
-                throw new Error(result.error.message || 'ImgBB rejected the upload.');
-            }
-        })
-        .then(() => {
+            fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("ImgBB host response felt shaky.");
+                return response.json();
+            })
+            .then(result => {
+                if (result.success && result.status === 200) {
+                    const uploadedUrl = result.data.url; 
+
+                    return db.collection('photos').add({
+                        url: uploadedUrl,
+                        caption: caption || "",
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                } else {
+                    throw new Error(result.error.message || 'ImgBB rejected the upload.');
+                }
+            })
+            .then(() => {
+                completedUploads++;
+                checkCompletion();
+            })
+            .catch(error => {
+                console.error("Error processing an individual file entry:", error);
+                failedUploads++;
+                completedUploads++;
+                checkCompletion();
+            });
+        };
+    };
+
+    const checkCompletion = () => {
+        uploadBtn.innerText = `Uploading ${completedUploads}/${files.length} Photos...`;
+
+        if (completedUploads === files.length) {
             photoInput.value = '';
             captionInput.value = '';
             uploadBtn.innerText = "Upload to Album";
             uploadBtn.disabled = false;
-            alert("Memory added!");
-        })
-        .catch(error => {
-            console.error("Error Details:", error);
-            alert("Upload failed! Check the developer console for details.");
-            uploadBtn.innerText = "Upload to Album";
-            uploadBtn.disabled = false;
-        });
+
+            if (failedUploads === 0) {
+                alert("Memory added!");
+            } else {
+                alert(`Processed batch! Successfully added ${files.length - failedUploads} memories, but ${failedUploads} profiles hit errors.`);
+            }
+        }
     };
+
+    Array.from(files).forEach((file) => {
+        uploadSingleFile(file);
+    });
 });
 
 
