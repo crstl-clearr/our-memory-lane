@@ -26,7 +26,6 @@ uploadBtn.addEventListener('click', () => {
 
     if (!file) return alert("Please select a beautiful photo first!");
 
-    // Lock button so you can't double-click by accident
     uploadBtn.innerText = "Uploading Photo...";
     uploadBtn.disabled = true;
 
@@ -67,11 +66,11 @@ uploadBtn.addEventListener('click', () => {
             captionInput.value = '';
             uploadBtn.innerText = "Upload to Album";
             uploadBtn.disabled = false;
-            alert("Memory added!");
+            alert("Memory safely added!");
         })
         .catch(error => {
             console.error("Error Details:", error);
-            alert("Upload failed! Make sure your database rules are set to true.");
+            alert("Upload failed! Check the developer console for details.");
             uploadBtn.innerText = "Upload to Album";
             uploadBtn.disabled = false;
         });
