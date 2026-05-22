@@ -1,3 +1,6 @@
+// ==========================================
+// 1. YOUR CRITICAL API KEYS & DETAILS
+// ==========================================
 const firebaseConfig = {
     apiKey: "AIzaSyD73Kg3wKe1ImJ5QWJCON20jhz72QAkMVo",
     authDomain: "our-memory-lane-fd8c2.firebaseapp.com",
@@ -8,11 +11,10 @@ const firebaseConfig = {
     measurementId: "G-ET8RFX62RP"
 };
 
-const FREEIMAGE_HOST_API_KEY = "6d207e02198a847aa98d0a2a901485a5"; 
+const IMGBB_API_KEY = "561fce2d73e0183eef3f7d771941141c"; 
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-
 
 const photoInput = document.getElementById('photo-input');
 const captionInput = document.getElementById('caption-input');
@@ -36,29 +38,27 @@ uploadBtn.addEventListener('click', () => {
         const base64String = reader.result.split(',')[1]; 
 
         const formData = new FormData();
-        formData.append('key', FREEIMAGE_HOST_API_KEY);
-        formData.append('action', 'upload');
-        formData.append('source', base64String); 
+        formData.append('image', base64String); 
 
-        fetch('https://freeimage.host/api/1/upload', {
+        fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
             method: 'POST',
             body: formData
         })
         .then(response => {
-            if (!response.ok) throw new Error("Cloud host response felt shaky.");
+            if (!response.ok) throw new Error("ImgBB host response felt shaky.");
             return response.json();
         })
         .then(result => {
-            if (result.status_code === 200) {
-                const uploadedUrl = result.image.url;
+            if (result.success && result.status === 200) {
+                const uploadedUrl = result.data.url; 
 
                 return db.collection('photos').add({
                     url: uploadedUrl,
-                    caption: caption || "A beautiful memory",
+                    caption: caption || "A beautiful memory ✨",
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
             } else {
-                throw new Error(result.error.message || 'Image host rejected the upload.');
+                throw new Error(result.error.message || 'ImgBB rejected the upload.');
             }
         })
         .then(() => {
@@ -66,7 +66,7 @@ uploadBtn.addEventListener('click', () => {
             captionInput.value = '';
             uploadBtn.innerText = "Upload to Album";
             uploadBtn.disabled = false;
-            alert("Memory safely added!");
+            alert("Memory added!");
         })
         .catch(error => {
             console.error("Error Details:", error);
@@ -79,7 +79,7 @@ uploadBtn.addEventListener('click', () => {
 
 
 db.collection('photos').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
-    albumGrid.innerHTML = '';
+    albumGrid.innerHTML = ''; 
     
     snapshot.forEach((doc) => {
         const data = doc.data();
