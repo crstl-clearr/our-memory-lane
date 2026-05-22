@@ -13,6 +13,7 @@ const IMGBB_API_KEY = "561fce2d73e0183eef3f7d771941141c";
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+
 const photoInput = document.getElementById('photo-input');
 const captionInput = document.getElementById('caption-input');
 const uploadBtn = document.getElementById('upload-btn');
@@ -51,7 +52,7 @@ uploadBtn.addEventListener('click', () => {
 
                 return db.collection('photos').add({
                     url: uploadedUrl,
-                    caption: caption || "A beautiful memory ✨",
+                    caption: caption || "A beautiful memory",
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
             } else {
@@ -80,6 +81,7 @@ db.collection('photos').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
     
     snapshot.forEach((doc) => {
         const data = doc.data();
+        const docId = doc.id; 
         
         const randomRotate = (Math.random() * 6 - 3).toFixed(1); 
 
@@ -88,9 +90,26 @@ db.collection('photos').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
         card.style.setProperty('--rotation', `${randomRotate}deg`);
 
         card.innerHTML = `
+            <div class="delete-btn" data-id="${docId}">Delete</div>
             <img src="${data.url}" alt="Memory Link">
             <div class="caption">${data.caption}</div>
         `;
+        
+        const deleteBtn = card.querySelector('.delete-btn');
+        deleteBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); 
+            
+            if (confirm("Are you sure you want to delete this memory?")) {
+                db.collection('photos').doc(docId).delete()
+                .then(() => {
+                    alert("Memory removed from the lane.");
+                })
+                .catch((error) => {
+                    console.error("Error removing document: ", error);
+                    alert("Oops! Couldn't delete it right now.");
+                });
+            }
+        });
         
         albumGrid.appendChild(card);
     });
