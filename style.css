@@ -1,94 +1,37 @@
-:root {
-    --bg-color: #fdfbf7;
-    --accent-pink: #ffb7b2;
-    --accent-cream: #ffe5d9;
-    --text-dark: #4a4a4a;
-}
-
-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--bg-color);
-    color: var(--text-dark);
-    margin: 0;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-h1 {
-    color: #db7b7b;
-}
-
-.upload-zone {
-    background: white;
-    padding: 20px;
-    border-radius: 15px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    display: flex;
-    gap: 10px;
-    margin-bottom: 40px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-input, button {
-    padding: 10px 15px;
-    border: 1px solid var(--accent-cream);
-    border-radius: 8px;
-    outline: none;
-}
-
-button {
-    background-color: var(--accent-pink);
-    color: white;
-    cursor: pointer;
-    font-weight: bold;
-    transition: transform 0.2s;
-}
-
-button:hover {
-    transform: scale(1.05);
-}
-
-.album-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 25px;
-    width: 100%;
-    max-width: 1000px;
-}
-
 .polaroid {
-    background: white;
-    padding: 15px;
-    padding-bottom: 25px;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.08);
-    transform: rotate(var(--rotation, 0deg));
-    transition: transform 0.3s ease;
+    position: relative;
 }
 
-.polaroid:hover {
-    transform: scale(1.03) rotate(0deg);
-    z-index: 10;
+.delete-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background-color: rgba(255, 255, 255, 0.9); 
+    color: #db7b7b; 
+    border: 1px solid var(--accent-cream);
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    
+    opacity: 0; 
+    transform: scale(0.8);
+    transition: opacity 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+    z-index: 5;
 }
 
-.polaroid img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-radius: 4px;
+.polaroid:hover .delete-btn {
+    opacity: 1;
+    transform: scale(1);
 }
 
-.caption {
-    font-family: 'Comic Sans MS', cursive, sans-serif;
-    text-align: center;
-    margin-top: 15px;
-    font-size: 0.95rem;
-    color: #555;
+.delete-btn:hover {
+    background-color: #ffe5d9;
+    color: #b84d4d; 
+    transform: scale(1.15); 
 }
