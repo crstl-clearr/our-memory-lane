@@ -24,7 +24,7 @@ uploadBtn.addEventListener('click', () => {
     const file = photoInput.files[0];
     const caption = captionInput.value.trim();
 
-    if (!file) return alert("Please select a beautiful photo first!");
+    if (!file) return alert("Please select a photo first!");
 
     uploadBtn.innerText = "Uploading Photo...";
     uploadBtn.disabled = true;
@@ -52,7 +52,7 @@ uploadBtn.addEventListener('click', () => {
 
                 return db.collection('photos').add({
                     url: uploadedUrl,
-                    caption: caption || "A beautiful memory",
+                    caption: caption || "",
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
             } else {
