@@ -148,3 +148,32 @@ db.collection('photos').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
 lightbox.addEventListener('click', () => {
     lightbox.classList.remove('open');
 });
+
+const lockScreen = document.getElementById('lock-screen');
+const pinInput = document.getElementById('pin-input');
+const unlockBtn = document.getElementById('unlock-btn');
+const lockError = document.getElementById('lock-error');
+
+const checkPin = () => {
+    const enteredPin = pinInput.value.trim();
+    
+    if (enteredPin === "040626") {
+        lockScreen.style.opacity = "0";
+        lockScreen.style.pointerEvents = "none";
+        
+        pinInput.value = "";
+        lockError.style.display = "none";
+    } else {
+        lockError.style.display = "block";
+        pinInput.value = "";
+        pinInput.focus();
+    }
+};
+
+unlockBtn.addEventListener('click', checkPin);
+
+pinInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        checkPin();
+    }
+});
