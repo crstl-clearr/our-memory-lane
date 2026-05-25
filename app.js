@@ -1,4 +1,3 @@
-
 const firebaseConfig = {
     apiKey: "AIzaSyD73Kg3wKe1ImJ5QWJCON20jhz72QAkMVo",
     authDomain: "our-memory-lane-fd8c2.firebaseapp.com",
@@ -14,12 +13,12 @@ const IMGBB_API_KEY = "561fce2d73e0183eef3f7d771941141c";
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-
 const photoInput = document.getElementById('photo-input');
 const captionInput = document.getElementById('caption-input');
 const uploadBtn = document.getElementById('upload-btn');
 const albumGrid = document.getElementById('album-grid');
-
+const lightbox = document.getElementById('lightbox');
+const lightboxImg = document.getElementById('lightbox-img');
 
 uploadBtn.addEventListener('click', () => {
     const files = photoInput.files;
@@ -99,7 +98,6 @@ uploadBtn.addEventListener('click', () => {
     });
 });
 
-
 db.collection('photos').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
     albumGrid.innerHTML = ''; 
     
@@ -118,6 +116,12 @@ db.collection('photos').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
             <img src="${data.url}" alt="Memory Link">
             <div class="caption">${data.caption}</div>
         `;
+        
+        const cardImg = card.querySelector('img');
+        cardImg.addEventListener('click', () => {
+            lightboxImg.src = data.url; 
+            lightbox.classList.add('open'); 
+        });
         
         const deleteBtn = card.querySelector('.delete-btn');
         deleteBtn.addEventListener('click', (e) => {
@@ -139,4 +143,8 @@ db.collection('photos').orderBy('createdAt', 'desc').onSnapshot((snapshot) => {
     });
 }, (error) => {
     console.error("Database tracking broken:", error);
+});
+
+lightbox.addEventListener('click', () => {
+    lightbox.classList.remove('open');
 });
