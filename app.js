@@ -204,14 +204,17 @@ pinInput.addEventListener('keypress', (e) => {
 });
 
 // ==========================================
-// 5. SECURITY SYSTEM (MOBILE TOUCH RESPONSIVE)
+// 5. SECURITY SYSTEM (FORM-BASED SUBMIT)
 // ==========================================
 const lockScreen = document.getElementById('lock-screen');
+const lockForm = document.getElementById('lock-form');
 const pinInput = document.getElementById('pin-input');
-const unlockBtn = document.getElementById('unlock-btn');
 const lockError = document.getElementById('lock-error');
 
-const checkPin = () => {
+// Single unified validation execution function
+const handleUnlock = (e) => {
+    if (e) e.preventDefault(); // Stop mobile browsers from reloading the layout page
+    
     const enteredPin = pinInput.value.trim();
     
     if (enteredPin === "040626") {
@@ -219,34 +222,23 @@ const checkPin = () => {
         lockScreen.style.opacity = "0";
         lockScreen.style.pointerEvents = "none";
         
-        // Restore scrolling to the actual page layout content
+        // Restore scrolling values
         document.body.style.overflow = "auto";
         document.documentElement.style.overflow = "auto";
         
         pinInput.value = "";
         lockError.style.display = "none";
     } else {
-        // Wrong PIN!
+        // Wrong PIN! Show the error block clearly
         lockError.style.display = "block";
         pinInput.value = "";
         pinInput.focus();
     }
 };
 
-// Handle explicit click or touch screen taps on the button
-unlockBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    checkPin();
-});
+// 🌟 THE ULTIMATE MOBILE FIX: Catches any form submission (clicks, taps, virtual keys)
+lockForm.addEventListener('submit', handleUnlock);
 
-// Mobile-friendly keyboard listener (handles 'Enter' key variations on iOS/Android)
-pinInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.keyCode === 13) {
-        e.preventDefault(); // Stop mobile browser from performing a messy default page reload
-        checkPin();
-    }
-});
-
-// Safety freeze: Stops the website layout underneath from moving while typing the PIN
+// Safety freeze: Stops background document shifting while typing code inputs
 document.body.style.overflow = "hidden";
 document.documentElement.style.overflow = "hidden";
