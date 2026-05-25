@@ -177,3 +177,28 @@ pinInput.addEventListener('keypress', (e) => {
         checkPin();
     }
 });
+
+const checkPin = () => {
+    const enteredPin = pinInput.value.trim();
+    
+    if (enteredPin === "040626") {
+        lockScreen.style.opacity = "0";
+        lockScreen.style.pointerEvents = "none";
+        
+        document.body.style.overflow = "auto";
+        
+        pinInput.value = "";
+        lockError.style.display = "none";
+    } else {
+        lockError.style.display = "block";
+        pinInput.value = "";
+        pinInput.focus();
+    }
+};
+
+document.body.style.overflow = "hidden";
+
+unlockBtn.addEventListener('click', checkPin);
+pinInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') checkPin();
+});
